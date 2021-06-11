@@ -1,3 +1,4 @@
+import logging
 import urllib.request
 import urllib.error
 from operator import itemgetter
@@ -10,6 +11,11 @@ import tensorflow.compat.v2 as tf  # type: ignore
 import tensorflow_hub as hub  # type: ignore
 
 from . import exceptions
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s:%(message)s"
+)
+logger = logging.getLogger(__name__)
 
 
 class BirdClassifier:
@@ -31,17 +37,23 @@ class BirdClassifier:
 
     def initialize(self):
         self.__load_model()  # TODO: test against connection errors
+
         try:
             self.__load_labels()
         except urllib.error.HTTPError as e:
             raise exceptions.InitializationError(
                 "Cannot download the labels"
             ) from e
+        except BaseException as e:
+            logger.error(e)
+            raise
 
     def __load_model(self):
+        logger.info("Initializing the tf model")
         self.model = hub.KerasLayer(self.model_URL)
 
     def __load_labels(self):
+        logger.info("Getting the labels")
         with urllib.request.urlopen(self.labels_URL) as response:
 
             bird_labels_lines = [
@@ -56,14 +68,20 @@ class BirdClassifier:
                 birds[bird_id] = {"name": bird_name}
 
             self.labels = birds
+            logger.debug(self.labels)
 
     async def classify_batch(self, image_urls):
+        logger.info("Batch classification")
         async with aiohttp.ClientSession() as session:
             for index, image_url in enumerate(image_urls):
                 print("Run: %s" % int(index + 1))
-                await self.classify_bird(image_url, session)
+                try:
+                    await self.classify_bird(image_url, session)
+                except exceptions.ClassifierError as e:
+                    logger.exception("Cannot process image: %s", image_url)
 
     async def classify_bird(self, image_url, session):
+        logger.info("Classifying: %r", image_url)
         if not self.model or not self.labels:
             raise exceptions.InitializationError(
                 "The classifier is not configured"
@@ -80,8 +98,15 @@ class BirdClassifier:
     @staticmethod
     async def __download_image(image_url: str, session: Any) -> np.ndarray:
         # TODO: add error management
-        async with session.get(image_url) as response:
-            return np.asarray(bytearray(await response.read()), dtype=np.uint8)
+        try:
+            async with session.get(image_url) as response:
+                return np.asarray(
+                    bytearray(await response.read()), dtype=np.uint8
+                )
+        except aiohttp.ClientConnectionError as e:
+            logger.info("Cannot download image: ", image_url)
+            logger.error(e)
+            raise exceptions.ClassifierError()
 
     @staticmethod
     def __preprocess_image(image_array: np.ndarray) -> Any:
@@ -93,6 +118,7 @@ class BirdClassifier:
         return image
 
     def __call_model(self, image: Any):
+        logger.info("Calling TF model...")
         image_tensor = tf.convert_to_tensor(image, dtype=tf.float32)
         image_tensor = tf.expand_dims(image_tensor, 0)
         model_raw_output = self.model.call(image_tensor).numpy()
@@ -105,6 +131,8 @@ class BirdClassifier:
         )[:top]
         for ele in model_result:
             result.append(dict({"score": ele[1]}, **self.labels[ele[0][1]]))
+        logger.debug("top birds: ")
+        logger.debug(result)
         return result
 
     @staticmethod

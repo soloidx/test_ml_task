@@ -28,6 +28,5 @@ if __name__ == "__main__":
     classifier = BirdClassifier(model_URL=model_url, labels_URL=labels_url)
     logging.info("Starting...")
     classifier.initialize()
-    print("Time spent initializing: %s" % (time.time() - start_time))
     loop.run_until_complete(classifier.classify_batch(image_urls))
     print("Time spent: %s" % (time.time() - start_time))
