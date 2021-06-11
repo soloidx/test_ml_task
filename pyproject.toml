@@ -1,0 +1,45 @@
+[tool.poetry]
+name = "test_ml_task"
+version = "0.1.0"
+description = "A simple bird classifier"
+authors = ["Ider Delzo <soloidx@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+tensorflow = "2.5.0rc0"
+tensorflow-hub = "0.11.0"
+opencv-python = "4.5.1.48"
+numpy = "1.19.3"
+
+[tool.poetry.dev-dependencies]
+black = "^21.5b2"
+flake8 = "^3.9.2"
+pylint = "^2.8.3"
+pytest = "^6.2.4"
+mypy = "^0.901"
+numpy-stubs = {git = "https://github.com/numpy/numpy-stubs.git"}
+
+[tool.black]
+line-length = 80
+
+[tool.pylint.format]
+max-line-length = "88"
+
+[tool.pylint.message_control]
+disable = """
+invalid-name,
+bad-continuation,
+missing-function-docstring,
+missing-module-docstring,
+missing-class-docstring,
+too-few-public-methods,
+too-many-arguments
+"""
+
+[tool.pylint.TYPECHECK]
+# ignored-classes = "Session, scoped_session"
+ignored-modules= "tensorflow"
+ 
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
