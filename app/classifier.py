@@ -10,10 +10,10 @@ import numpy as np
 import tensorflow.compat.v2 as tf  # type: ignore
 import tensorflow_hub as hub  # type: ignore
 
-from . import exceptions
+from app import exceptions
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s:%(message)s"
+    level=logging.ERROR, format="%(asctime)s %(name)s %(levelname)s:%(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -36,13 +36,12 @@ class BirdClassifier:
         self.labels = None
 
     def initialize(self):
-        self.__load_model()  # TODO: test against connection errors
-
         try:
+            self.__load_model()
             self.__load_labels()
-        except urllib.error.HTTPError as e:
+        except urllib.error.URLError as e:
             raise exceptions.InitializationError(
-                "Cannot download the labels"
+                "Cannot initialize the model"
             ) from e
         except BaseException as e:
             logger.error(e)
@@ -55,7 +54,7 @@ class BirdClassifier:
                 print("Run: %s" % int(index + 1))
                 try:
                     await self.classify_bird(image_url, session)
-                except exceptions.ClassifierError as e:
+                except exceptions.ClassifierError:
                     logger.exception("Cannot process image: %s", image_url)
 
     async def classify_bird(self, image_url, session):
@@ -104,7 +103,7 @@ class BirdClassifier:
                     bytearray(await response.read()), dtype=np.uint8
                 )
         except aiohttp.ClientConnectionError as e:
-            logger.info("Cannot download image: ", image_url)
+            logger.info("Cannot download image: %s", image_url)
             logger.error(e)
             raise exceptions.ClassifierError()
 
@@ -144,6 +143,7 @@ class BirdClassifier:
 
         for index, ele in enumerate(results):
             print(
-                f"{order[index]} match: \"{ele['name']}\" with score: {ele['score']:.8f}"
+                f"{order[index]} match: \"{ele['name']}\" "
+                f"with score: {ele['score']:.8f}"
             )
         print("\n")
