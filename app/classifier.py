@@ -48,28 +48,6 @@ class BirdClassifier:
             logger.error(e)
             raise
 
-    def __load_model(self):
-        logger.info("Initializing the tf model")
-        self.model = hub.KerasLayer(self.model_URL)
-
-    def __load_labels(self):
-        logger.info("Getting the labels")
-        with urllib.request.urlopen(self.labels_URL) as response:
-
-            bird_labels_lines = [
-                line.decode("utf-8").replace("\n", "")
-                for line in response.readlines()
-            ]
-            bird_labels_lines.pop(0)  # remove header (id, name)
-            birds = {}
-            for bird_line in bird_labels_lines:
-                bird_id = int(bird_line.split(",")[0])
-                bird_name = bird_line.split(",")[1]
-                birds[bird_id] = {"name": bird_name}
-
-            self.labels = birds
-            logger.debug(self.labels)
-
     async def classify_batch(self, image_urls):
         logger.info("Batch classification")
         async with aiohttp.ClientSession() as session:
@@ -94,6 +72,28 @@ class BirdClassifier:
         self.get_top_birds(model_raw_output)
         top_birds = self.get_top_birds(model_raw_output)
         self.__print_results(top_birds)
+
+    def __load_model(self):
+        logger.info("Initializing the tf model")
+        self.model = hub.KerasLayer(self.model_URL)
+
+    def __load_labels(self):
+        logger.info("Getting the labels")
+        with urllib.request.urlopen(self.labels_URL) as response:
+
+            bird_labels_lines = [
+                line.decode("utf-8").replace("\n", "")
+                for line in response.readlines()
+            ]
+            bird_labels_lines.pop(0)  # remove header (id, name)
+            birds = {}
+            for bird_line in bird_labels_lines:
+                bird_id = int(bird_line.split(",")[0])
+                bird_name = bird_line.split(",")[1]
+                birds[bird_id] = {"name": bird_name}
+
+            self.labels = birds
+            logger.debug(self.labels)
 
     @staticmethod
     async def __download_image(image_url: str, session: Any) -> np.ndarray:
