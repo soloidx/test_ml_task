@@ -10,6 +10,9 @@ tensorflow = "2.5.0rc0"
 tensorflow-hub = "0.11.0"
 opencv-python = "4.5.1.48"
 numpy = "1.19.3"
+aiohttp = "^3.7.4"
+cchardet = "^2.1.7"
+aiodns = "^3.0.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b2"
