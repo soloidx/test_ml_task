@@ -1,8 +1,8 @@
 # WORK IN PROGRESS: I have pending these Items:
 
-- Testing and coverage
-- CI/CD with kubernetes
+- Increase coverage (currently 43%)
 - Better documentation in this page
+- Docker support
 
 # Test Task
 
