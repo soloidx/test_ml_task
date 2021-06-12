@@ -2,7 +2,7 @@ import logging
 import urllib.request
 import urllib.error
 from operator import itemgetter
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 import aiohttp
 import cv2  # type: ignore
@@ -29,7 +29,7 @@ class BirdClassifier:
         self.model_URL = settings.model_URL
         self.model: hub.KerasLayer = None
         self.labels_URL = settings.labels_URL
-        self.labels = None
+        self.labels: Optional[Dict] = None
 
     def initialize(self):
         try:
@@ -43,17 +43,21 @@ class BirdClassifier:
             logger.exception("Unhandled exception")
             raise
 
-    async def classify_batch(self, image_urls):
+    async def classify_batch(self, image_urls: List[str]) -> List[List[Dict]]:
         logger.info("Batch classification")
+        result: Optional[List[List[Dict]]] = [None] * len(image_urls)
         async with aiohttp.ClientSession() as session:
             for index, image_url in enumerate(image_urls):
                 print("Run: %s" % int(index + 1))
                 try:
-                    await self.classify_bird(image_url, session)
+                    result[index] = await self.classify_bird(image_url, session)
                 except exceptions.ClassifierError:
                     logger.exception("Cannot process image: %s", image_url)
+        return result
 
-    async def classify_bird(self, image_url, session):
+    async def classify_bird(
+        self, image_url: str, session: aiohttp.ClientSession
+    ) -> List[Dict]:
         logger.info("Classifying: %r", image_url)
         if not self.model or not self.labels:
             raise exceptions.InitializationError(
@@ -66,13 +70,13 @@ class BirdClassifier:
         model_raw_output = self.__call_model(image)
         self.get_top_birds(model_raw_output)
         top_birds = self.get_top_birds(model_raw_output)
-        self.__print_results(top_birds)
+        return top_birds
 
-    def __load_model(self):
+    def __load_model(self) -> None:
         logger.info("Initializing the tf model")
         self.model = hub.KerasLayer(self.model_URL)
 
-    def __load_labels(self):
+    def __load_labels(self) -> None:
         logger.info("Getting the labels")
         with urllib.request.urlopen(self.labels_URL) as response:
 
@@ -92,7 +96,6 @@ class BirdClassifier:
 
     @staticmethod
     async def __download_image(image_url: str, session: Any) -> np.ndarray:
-        # TODO: add error management
         try:
             async with session.get(image_url) as response:
                 return np.asarray(
@@ -112,7 +115,7 @@ class BirdClassifier:
         image = image / 255
         return image
 
-    def __call_model(self, image: Any):
+    def __call_model(self, image: Any) -> np.ndarray:
         logger.info("Calling TF model...")
         image_tensor = tf.convert_to_tensor(image, dtype=tf.float32)
         image_tensor = tf.expand_dims(image_tensor, 0)
@@ -129,17 +132,3 @@ class BirdClassifier:
         logger.debug("top birds: ")
         logger.debug(result)
         return result
-
-    @staticmethod
-    def __print_results(results):
-        """
-        This method prints only the 3 first results
-        """
-        order = ["Top", "Second", "Third"]
-
-        for index, ele in enumerate(results):
-            print(
-                f"{order[index]} match: \"{ele['name']}\" "
-                f"with score: {ele['score']:.8f}"
-            )
-        print("\n")

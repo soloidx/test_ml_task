@@ -44,7 +44,15 @@ too-many-arguments
 
 [tool.pylint.TYPECHECK]
 # ignored-classes = "Session, scoped_session"
+extension-pkg-whitelist = ["cv2"]
 ignored-modules= "tensorflow"
+
+[tool.coverage.run]
+omit =[
+    ".venv/*",
+    "venv/*",
+    "env/*"
+]
  
 [build-system]
 requires = ["poetry-core>=1.0.0"]

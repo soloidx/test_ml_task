@@ -26,6 +26,10 @@ class TestBirdClassifierInit(unittest.TestCase):
             self.assertEqual(classifier.model_URL, "foo")
             self.assertEqual(classifier.labels_URL, "bar")
 
+    def test_init_should_raise_error(self):
+        with self.assertRaises(exceptions.BadConfigurationError):
+            BirdClassifier(settings=None)
+
     @patch.object(BirdClassifier, "_BirdClassifier__load_model")
     @patch.object(BirdClassifier, "_BirdClassifier__load_labels")
     def test_initialize_should_call_loading_methods(

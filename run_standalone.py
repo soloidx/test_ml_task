@@ -16,6 +16,21 @@ image_urls = [
     "https://cdn.britannica.com/77/189277-004-0A3BC3D4.jpg",
 ]
 
+
+def print_results(_results):
+    """
+    This method prints only the 3 first results
+    """
+    order = ["Top", "Second", "Third"]
+
+    for index, ele in enumerate(_results):
+        print(
+            f"{order[index]} match: \"{ele['name']}\" "
+            f"with score: {ele['score']:.8f}"
+        )
+    print("\n")
+
+
 if __name__ == "__main__":
     start_time = time.time()
 
@@ -25,6 +40,8 @@ if __name__ == "__main__":
 
     classifier = BirdClassifier(settings=initial_settings)
     classifier.initialize()
-    loop.run_until_complete(classifier.classify_batch(image_urls))
+    results = loop.run_until_complete(classifier.classify_batch(image_urls))
 
+    for result in results:
+        print_results(result)
     print("Time spent: %s" % (time.time() - start_time))
