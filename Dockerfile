@@ -53,8 +53,7 @@ RUN echo "$APP_ENV" \
   # Cleaning poetry installation's cache for production:
   && if [ "$APP_ENV" = 'production' ]; then rm -rf "$POETRY_CACHE_DIR"; fi
 
-COPY run.py /test_ml/run.py
 COPY app /test_ml/app
 
 
-ENTRYPOINT ["python", "run.py"]
+# ENTRYPOINT ["python", "run.py"]

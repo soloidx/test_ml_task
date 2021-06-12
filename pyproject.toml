@@ -13,6 +13,8 @@ numpy = "1.19.3"
 aiohttp = "^3.7.4"
 cchardet = "^2.1.7"
 aiodns = "^3.0.0"
+pydantic = "^1.8.2"
+python-dotenv = "^0.17.1"
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b2"

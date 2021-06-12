@@ -11,6 +11,7 @@ import tensorflow.compat.v2 as tf  # type: ignore
 import tensorflow_hub as hub  # type: ignore
 
 from app import exceptions
+from app.settings import Settings
 
 logging.basicConfig(
     level=logging.ERROR, format="%(asctime)s %(name)s %(levelname)s:%(message)s"
@@ -19,20 +20,15 @@ logger = logging.getLogger(__name__)
 
 
 class BirdClassifier:
-    def __init__(self, model_URL: str, labels_URL: str) -> None:
-        if not model_URL:
+    def __init__(self, *, settings: Settings) -> None:
+        if not settings:
             raise exceptions.BadConfigurationError(
-                "You need to specify the model URL"
+                "You need to pass the settings"
             )
 
-        if not labels_URL:
-            raise exceptions.BadConfigurationError(
-                "You need to specify the labels URL"
-            )
-
-        self.model_URL = model_URL
+        self.model_URL = settings.model_URL
         self.model: hub.KerasLayer = None
-        self.labels_URL = labels_URL
+        self.labels_URL = settings.labels_URL
         self.labels = None
 
     def initialize(self):
