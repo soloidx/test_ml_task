@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  worker:
+    build: ./docker/worker/.
+    links:
+      - redis
+  redis:
+    image: "redis:alpine"
