@@ -39,8 +39,8 @@ class BirdClassifier:
             raise exceptions.InitializationError(
                 "Cannot initialize the model"
             ) from e
-        except BaseException as e:
-            logger.error(e)
+        except BaseException:
+            logger.exception("Unhandled exception")
             raise
 
     async def classify_batch(self, image_urls):

@@ -23,6 +23,7 @@ pylint = "^2.8.3"
 pytest = "^6.2.4"
 mypy = "^0.901"
 numpy-stubs = {git = "https://github.com/numpy/numpy-stubs.git"}
+coverage = "^5.5"
 
 [tool.black]
 line-length = 80

@@ -23,7 +23,7 @@ You can change all parts of the code as you see fit, however:
 - You are not expected to work on ML model performance
 - Model and data have to be fetched online (instead of downloading it to your local machine)
 
-By the end of this task we would like to see, what is a good looking code in your opinion and how much can you optimise latency.
+By the end of this task we would like to see, what is a good looking code in your opinion and how much can you optimize latency.
 
 Feel free to play around with the code as much as you like, but in the end we want to see:
 
@@ -31,19 +31,30 @@ Feel free to play around with the code as much as you like, but in the end we wa
 - Code running time including images and model downloading and model inference
 - Top 3 results from the model's output per image
 - Proper logging for essential and debug info if necessary
-- Finished work has to be pushed to github and shared with @swoc and @hrastas
+- Finished work has to be pushed to GitHub and shared with @swoc and @hrastas
 
 Bonus
 
 - Unit tests with Mocked images and model data (possible to run without internet)
-- Analyse the bottlenecks in your implementation, and report options for improving upon them.
+- Analyze the bottlenecks in your implementation, and report options for improving upon them.
 - Implement your solution using Docker and Kubernetes for the infrastructure layer. The configuration should scale out: adding machines should reduce latency
 
 # Local setup
 
+## Local development setup
+
 1. Install Python 3
-2. Install requirements `pip install -r requirements.txt`
-3. Run the code `python classifier.py
+2. Install poetry `pip install poetry`
+3. Install the poetry Dependencies `poetry install`
+4. Activate the poetry environment `poetry shell`
+5. Run the code `python run_standalone.py`
+
+## Docker setup
+
+1. Install Docker
+2. Build the image `docker build -t test_ml`
+3. Run the image `docker run test_ml python run_standalone.py`
+4. TBD: run as a client - serve infraestructure
 
 gl;hf
 
