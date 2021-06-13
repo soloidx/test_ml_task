@@ -1,9 +1,3 @@
-# WORK IN PROGRESS: I have pending these Items:
-
-- Increase coverage (currently 43%)
-- Better documentation in this page
-- Docker support for client / server
-
 # Test Task
 
 Many photographers have been taking images of birds and wondering what kind of bird it actually is.
@@ -65,6 +59,10 @@ The project is using a `.env` file for managing the environment, you can get an 
 2. Run the Redis + workers with docker compose `docker-compose up worker`
 3. In another terminal run the server script `docker-compose run server`
 4. you can see the logs in the worker terminal
+
+# Last comments:
+
+I implement the tests functionality but I only have the coverage of 43% I could improve it over the next days
 
 gl;hf
 
