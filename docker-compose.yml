@@ -1,8 +1,22 @@
 version: "3.9"
 services:
   worker:
-    build: ./docker/worker/.
+    build: .
     links:
       - redis
+    environment:
+      - "TF_CPP_MIN_LOG_LEVEL=3"
+    command: "rq worker -c settings"
+  server:
+    build: .
+    links:
+      - redis
+    environment:
+      - "TF_CPP_MIN_LOG_LEVEL=3"
+      - "TEST_ML_REDIS_URL=redis://redis:6379"
+    env_file: .env
+    command: "python run_server.py"
   redis:
     image: "redis:alpine"
+    ports:
+      - "6379:6379"

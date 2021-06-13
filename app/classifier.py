@@ -1,4 +1,5 @@
 import logging
+import asyncio
 import urllib.request
 import urllib.error
 from operator import itemgetter
@@ -70,7 +71,21 @@ class BirdClassifier:
         model_raw_output = self.__call_model(image)
         self.get_top_birds(model_raw_output)
         top_birds = self.get_top_birds(model_raw_output)
+        print("RESULTS *************")
+        self.print_results(top_birds)
         return top_birds
+
+    @classmethod
+    def classify_bird_sync(cls, settings: Any, image_url: str):
+        classifier = cls(settings=settings)
+        classifier.initialize()
+        asyncio.run(classifier.classify_with_session(image_url=image_url))
+
+    async def classify_with_session(self, *, image_url: str):
+        async with aiohttp.ClientSession() as client_session:
+            await self.classify_bird(
+                image_url=image_url, session=client_session
+            )
 
     def __load_model(self) -> None:
         logger.info("Initializing the tf model")
@@ -132,3 +147,17 @@ class BirdClassifier:
         logger.debug("top birds: ")
         logger.debug(result)
         return result
+
+    @staticmethod
+    def print_results(_results):
+        """
+        This method prints only the 3 first results
+        """
+        order = ["Top", "Second", "Third"]
+
+        for index, ele in enumerate(_results):
+            print(
+                f"{order[index]} match: \"{ele['name']}\" "
+                f"with score: {ele['score']:.8f}"
+            )
+        print("\n")

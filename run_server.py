@@ -4,7 +4,7 @@ import os
 import time
 
 import aiohttp
-from redis import Redis
+import redis
 from rq import Queue
 
 from app.classifier import BirdClassifier
@@ -22,36 +22,10 @@ image_urls = [
     "https://cdn.britannica.com/77/189277-004-0A3BC3D4.jpg",
 ]
 
-
-def print_results(_results):
-    """
-    This method prints only the 3 first results
-    """
-    order = ["Top", "Second", "Third"]
-
-    for index, ele in enumerate(_results):
-        print(
-            f"{order[index]} match: \"{ele['name']}\" "
-            f"with score: {ele['score']:.8f}"
-        )
-    print("\n")
-
-
-def clasify_image_sync(*args, **kwargs):
-    asyncio.run(clasify_image(*args, **kwargs))
-
-
-async def clasify_image(image_URL):
-    classifier = BirdClassifier(settings=settings)
-    classifier.initialize()
-
-    async with aiohttp.ClientSession() as session:
-        result = await classifier.classify_bird(image_URL, session)
-        print_results(result)
-
-
 if __name__ == "__main__":
     logging.info("Starting...")
-    queue = Queue(connection=Redis(settings.redis_DSN))
+    conn = redis.from_url(settings.redis_DSN)
+    queue = Queue("high_priority", connection=conn)
     for image in image_urls:
-        clasify_image_sync(image)
+        print("queueing ", image)
+        queue.enqueue(BirdClassifier.classify_bird_sync, settings, image)

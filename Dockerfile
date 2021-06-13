@@ -54,6 +54,9 @@ RUN echo "$APP_ENV" \
   && if [ "$APP_ENV" = 'production' ]; then rm -rf "$POETRY_CACHE_DIR"; fi
 
 COPY app /test_ml/app
+COPY run_standalone.py ./
+COPY run_server.py ./
 
+COPY ./docker/worker/settings.py ./
 
-# ENTRYPOINT ["python", "run.py"]
+# ENTRYPOINT ["python", "run_standalone.py"]

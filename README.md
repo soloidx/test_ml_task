@@ -2,7 +2,7 @@
 
 - Increase coverage (currently 43%)
 - Better documentation in this page
-- Docker support
+- Docker support for client / server
 
 # Test Task
 
@@ -41,6 +41,10 @@ Bonus
 
 # Local setup
 
+## Environment file:
+
+The project is using a `.env` file for managing the environment, you can get an example from the file `env.example`
+
 ## Local development setup
 
 1. Install Python 3
@@ -49,12 +53,18 @@ Bonus
 4. Activate the poetry environment `poetry shell`
 5. Run the code `python run_standalone.py`
 
-## Docker setup
+## Docker setup standalone
 
 1. Install Docker
 2. Build the image `docker build -t test_ml`
 3. Run the image `docker run test_ml python run_standalone.py`
-4. TBD: run as a client - serve infraestructure
+
+## Docker setup client / server
+
+1. Install Docker
+2. Run the Redis + workers with docker compose `docker-compose up worker`
+3. In another terminal run the server script `docker-compose run server`
+4. you can see the logs in the worker terminal
 
 gl;hf
 
